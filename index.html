@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VitaPoint Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:10px;background:#fff;color:#222}
+h1{margin:0 0 4px;font-size:22px;color:#2867b2}
+.sub{font-size:12px;color:#888;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.card{border:1px solid #e5e7eb;border-radius:6px;padding:10px;background:#fafafa}
+.lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.val{font-size:20px;font-weight:600;margin-top:4px}
+.sm{font-size:11px;color:#888;margin-top:2px}
+.charts{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+.chartbox{border:1px solid #e5e7eb;border-radius:6px;padding:10px;background:#fff}
+.cw{height:280px;position:relative}
+.foot{font-size:11px;color:#aaa;text-align:right;margin-top:8px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>VitaPoint</h1>
+<div class="sub">25.04.2026 · 11:00 MSK · автообновление каждый час · след: 12:00</div>
+
+<div class="grid">
+<div class="card"><div class="lbl">ВК</div><div class="val">432 подп.</div><div class="sm">2 публ./нед · 20 за 28д · ★ 5,0</div></div>
+<div class="card"><div class="lbl">Я.Карты</div><div class="val">49 отз.</div><div class="sm">★ 4,7</div></div>
+<div class="card"><div class="lbl">Zoon</div><div class="val">★ 5,0</div></div>
+<div class="card"><div class="lbl">VP.Market</div><div class="val">сайт+прил.</div></div>
+<div class="card"><div class="lbl">УТО</div><div class="val">4,54 млн</div><div class="sm">всего</div></div>
+<div class="card"><div class="lbl">Клиенты CRM</div><div class="val">79</div></div>
+</div>
+
+<div class="grid2">
+<div class="card"><div class="lbl">Выручка сегодня</div><div class="val">7,8 тыс ₽</div><div class="sm">7 833 ₽</div></div>
+<div class="card"><div class="lbl">Чеков сегодня</div><div class="val">27</div></div>
+<div class="card"><div class="lbl">Ср.чек сегодня</div><div class="val">290 ₽</div><div class="sm">7833/27</div></div>
+<div class="card"><div class="lbl">Подписчики ВК</div><div class="val">432</div><div class="sm">без изм.</div></div>
+</div>
+
+<div class="charts">
+<div class="chartbox"><div class="lbl">Последние 9 недель (выручка / чеки / ср.чек)</div><div class="cw"><canvas id="c1"></canvas></div></div>
+<div class="chartbox"><div class="lbl">Помесячная выручка</div><div class="cw"><canvas id="c2"></canvas></div></div>
+</div>
+
+<div class="foot">Источник: lk.platformaofd.ru · CRM · ВК · Я.Карты · Zoon</div>
+
+<script>
+const w=['23.02-01.03','02-08.03','09-15.03','16-22.03','23-29.03','30.03-05.04','06-12.04','13-19.04','20-24.04*'];
+const rev=[220000,288000,315000,335000,330000,375000,295000,338000,295000];
+const chk=[700,880,950,1010,970,1070,870,990,820];
+const ac=rev.map((r,i)=>Math.round(r/chk[i]));
+new Chart(document.getElementById('c1'),{
+  data:{labels:w,datasets:[
+    {type:'bar',label:'Выручка ₽',data:rev,backgroundColor:'rgba(110,130,200,0.35)',borderColor:'rgba(110,130,200,0.6)',borderWidth:1,yAxisID:'y',order:3},
+    {type:'line',label:'Чеки',data:chk,borderColor:'#ff9f40',backgroundColor:'#ff9f40',yAxisID:'y1',tension:.3,order:1},
+    {type:'line',label:'Ср.чек',data:ac,borderColor:'#e74c3c',backgroundColor:'#e74c3c',yAxisID:'y2',tension:.3,order:0}
+  ]},
+  options:{maintainAspectRatio:false,responsive:true,scales:{y:{position:'left',beginAtZero:true},y1:{position:'right',grid:{drawOnChartArea:false}},y2:{position:'right',grid:{drawOnChartArea:false},offset:true}}}
+});
+const pct=111.8;
+new Chart(document.getElementById('c2'),{
+  type:'bar',
+  data:{labels:['Янв','Фев','Мар','Апр*'],datasets:[{data:[920000,1030000,1400000,1168000],backgroundColor:['#6a5acd','#9370db','#f0a020','#2ecc8f']}]},
+  options:{maintainAspectRatio:false,responsive:true,layout:{padding:{top:24}},plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}},
+    animation:{onComplete:function(){const ch=this,ctx=ch.ctx,ds=ch.getDatasetMeta(0).data[3];if(!ds)return;ctx.save();ctx.fillStyle='#2ecc8f';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(pct.toFixed(1).replace('.',',')+'%',ds.x,ds.y-6);ctx.restore();}}}
+});
+setTimeout(()=>location.reload(true),3600000);
+</script>
+</body>
+</html>
