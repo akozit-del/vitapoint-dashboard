@@ -25,10 +25,10 @@ h1{margin:0 0 4px;font-size:22px;color:#2867b2}
 </head>
 <body>
 <h1>VitaPoint</h1>
-<div class="sub">25.04.2026 · 11:00 MSK · автообновление каждый час · след: 12:00</div>
+<div class="sub">25.04.2026 · 12:00 MSK · автообновление каждый час · след: 13:00</div>
 
 <div class="grid">
-<div class="card"><div class="lbl">ВК</div><div class="val">432 подп.</div><div class="sm">2 публ./нед · 20 за 28д · ★ 5,0</div></div>
+<div class="card"><div class="lbl">ВК</div><div class="val">431 подп.</div><div class="sm">2 публ./нед · 20 за 28д · ★ 5,0</div></div>
 <div class="card"><div class="lbl">Я.Карты</div><div class="val">49 отз.</div><div class="sm">★ 4,7</div></div>
 <div class="card"><div class="lbl">Zoon</div><div class="val">★ 5,0</div></div>
 <div class="card"><div class="lbl">VP.Market</div><div class="val">сайт+прил.</div></div>
@@ -40,7 +40,7 @@ h1{margin:0 0 4px;font-size:22px;color:#2867b2}
 <div class="card"><div class="lbl">Выручка сегодня</div><div class="val">7,8 тыс ₽</div><div class="sm">7 833 ₽</div></div>
 <div class="card"><div class="lbl">Чеков сегодня</div><div class="val">27</div></div>
 <div class="card"><div class="lbl">Ср.чек сегодня</div><div class="val">290 ₽</div><div class="sm">7833/27</div></div>
-<div class="card"><div class="lbl">Подписчики ВК</div><div class="val">432</div><div class="sm">без изм.</div></div>
+<div class="card"><div class="lbl">Подписчики ВК</div><div class="val">431</div><div class="sm">-1</div></div>
 </div>
 
 <div class="charts">
@@ -68,7 +68,7 @@ new Chart(document.getElementById('c2'),{
   type:'bar',
   data:{labels:['Янв','Фев','Мар','Апр*'],datasets:[{data:[920000,1030000,1400000,1168000],backgroundColor:['#6a5acd','#9370db','#f0a020','#2ecc8f']}]},
   options:{maintainAspectRatio:false,responsive:true,layout:{padding:{top:24}},plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}},
-    animation:{onComplete:function(){const ch=this,ctx=ch.ctx,ds=ch.getDatasetMeta(0).data[3];if(!ds)return;ctx.save();ctx.fillStyle='#2ecc8f';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(pct.toFixed(1).replace('.',',')+'%',ds.x,ds.y-6);ctx.restore();}}}
+  animation:{onComplete:function(){const ch=this,ctx=ch.ctx,ds=ch.getDatasetMeta(0).data[3];if(!ds)return;ctx.save();ctx.fillStyle='#2ecc8f';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(pct.toFixed(1).replace('.',',')+'%',ds.x,ds.y-6);ctx.restore();}}}
 });
 setTimeout(()=>location.reload(true),3600000);
 </script>
