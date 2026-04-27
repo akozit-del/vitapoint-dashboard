@@ -25,10 +25,10 @@ h1{margin:0 0 4px;font-size:22px;color:#2867b2}
 </head>
 <body>
 <h1>VitaPoint</h1>
-<div class="sub">25.04.2026 · 12:00 MSK · автообновление каждый час · след: 13:00</div>
+<div class="sub" id="ts">27.04.2026 · 07:00 MSK · автообновление каждый час · след: 08:00</div>
 
 <div class="grid">
-<div class="card"><div class="lbl">ВК</div><div class="val">431 подп.</div><div class="sm">2 публ./нед · 20 за 28д · ★ 5,0</div></div>
+<div class="card"><div class="lbl">ВК</div><div class="val" id="vk-sub">431 подп.</div><div class="sm">2 публ./нед · 20 за 28д · ★ 5,0</div></div>
 <div class="card"><div class="lbl">Я.Карты</div><div class="val">49 отз.</div><div class="sm">★ 4,7</div></div>
 <div class="card"><div class="lbl">Zoon</div><div class="val">★ 5,0</div></div>
 <div class="card"><div class="lbl">VP.Market</div><div class="val">сайт+прил.</div></div>
@@ -37,10 +37,10 @@ h1{margin:0 0 4px;font-size:22px;color:#2867b2}
 </div>
 
 <div class="grid2">
-<div class="card"><div class="lbl">Выручка сегодня</div><div class="val">7,8 тыс ₽</div><div class="sm">7 833 ₽</div></div>
-<div class="card"><div class="lbl">Чеков сегодня</div><div class="val">27</div></div>
-<div class="card"><div class="lbl">Ср.чек сегодня</div><div class="val">290 ₽</div><div class="sm">7833/27</div></div>
-<div class="card"><div class="lbl">Подписчики ВК</div><div class="val">431</div><div class="sm">-1</div></div>
+<div class="card"><div class="lbl">Выручка сегодня</div><div class="val" id="rev-today">0,1 тыс ₽</div><div class="sm" id="rev-today-exact">98 ₽</div></div>
+<div class="card"><div class="lbl">Чеков сегодня</div><div class="val" id="chk-today">1</div></div>
+<div class="card"><div class="lbl">Ср.чек сегодня</div><div class="val" id="ac-today">98 ₽</div><div class="sm" id="ac-today-calc">98/1</div></div>
+<div class="card"><div class="lbl">Подписчики ВК</div><div class="val" id="vk-count">431</div><div class="sm">без изм.</div></div>
 </div>
 
 <div class="charts">
@@ -51,9 +51,9 @@ h1{margin:0 0 4px;font-size:22px;color:#2867b2}
 <div class="foot">Источник: lk.platformaofd.ru · CRM · ВК · Я.Карты · Zoon</div>
 
 <script>
-const w=['23.02-01.03','02-08.03','09-15.03','16-22.03','23-29.03','30.03-05.04','06-12.04','13-19.04','20-24.04*'];
-const rev=[220000,288000,315000,335000,330000,375000,295000,338000,295000];
-const chk=[700,880,950,1010,970,1070,870,990,820];
+const w=['23.02-01.03','02-08.03','09-15.03','16-22.03','23-29.03','30.03-05.04','06-12.04','13-19.04','20-26.04'];
+const rev=[222076,289674,316581,335509,330151,376171,296772,340502,370211];
+const chk=[627,815,885,971,987,1090,851,959,1024];
 const ac=rev.map((r,i)=>Math.round(r/chk[i]));
 new Chart(document.getElementById('c1'),{
   data:{labels:w,datasets:[
@@ -63,14 +63,32 @@ new Chart(document.getElementById('c1'),{
   ]},
   options:{maintainAspectRatio:false,responsive:true,scales:{y:{position:'left',beginAtZero:true},y1:{position:'right',grid:{drawOnChartArea:false}},y2:{position:'right',grid:{drawOnChartArea:false},offset:true}}}
 });
-const pct=111.8;
+const pct=102.5;
 new Chart(document.getElementById('c2'),{
   type:'bar',
-  data:{labels:['Янв','Фев','Мар','Апр*'],datasets:[{data:[920000,1030000,1400000,1168000],backgroundColor:['#6a5acd','#9370db','#f0a020','#2ecc8f']}]},
+  data:{labels:['Янв','Фев','Мар','Апр*'],datasets:[{data:[949773,1048109,1412076,1260576],backgroundColor:['#6a5acd','#9370db','#f0a020','#2ecc8f']}]},
   options:{maintainAspectRatio:false,responsive:true,layout:{padding:{top:24}},plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}},
   animation:{onComplete:function(){const ch=this,ctx=ch.ctx,ds=ch.getDatasetMeta(0).data[3];if(!ds)return;ctx.save();ctx.fillStyle='#2ecc8f';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(pct.toFixed(1).replace('.',',')+'%',ds.x,ds.y-6);ctx.restore();}}}
 });
-setTimeout(()=>location.reload(true),3600000);
+
+// Auto-refresh: fetch data.json every hour
+async function refreshData(){
+  try{
+    const r=await fetch('data.json?t='+Date.now());
+    if(!r.ok)return;
+    const d=await r.json();
+    if(d.ts)document.getElementById('ts').textContent=d.ts;
+    if(d.revToday)document.getElementById('rev-today').textContent=d.revToday;
+    if(d.revTodayExact)document.getElementById('rev-today-exact').textContent=d.revTodayExact;
+    if(d.chkToday)document.getElementById('chk-today').textContent=d.chkToday;
+    if(d.acToday)document.getElementById('ac-today').textContent=d.acToday;
+    if(d.acTodayCalc)document.getElementById('ac-today-calc').textContent=d.acTodayCalc;
+    if(d.vkCount)document.getElementById('vk-count').textContent=d.vkCount;
+    if(d.vkSub)document.getElementById('vk-sub').textContent=d.vkSub;
+  }catch(e){}
+}
+setInterval(refreshData,3600000);
+refreshData();
 </script>
 </body>
 </html>
