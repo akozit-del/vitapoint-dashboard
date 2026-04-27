@@ -1,0 +1,54 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get VK subscribers
+        id: vk
+        run: |
+          VK_DATA=$(curl -s "https://api.vk.com/method/groups.getById?group_id=vitapoint_ru&fields=members_count&access_token=${{ secrets.VK_TOKEN }}&v=5.199")
+          MEMBERS=$(echo $VK_DATA | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('response',{}).get('groups',[{}])[0].get('members_count',0))" 2>/dev/null || echo 0)
+          echo "members=$MEMBERS" >> $GITHUB_OUTPUT
+
+      - name: Get current hour MSK
+        id: time
+        run: |
+          HOUR=$(TZ=Europe/Moscow date +%H:%M)
+          DATE=$(TZ=Europe/Moscow date +%d.%m.%Y)
+          NEXT=$(TZ=Europe/Moscow date -d '+1 hour' +%H:%M)
+          echo "hour=$HOUR" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "next=$NEXT" >> $GITHUB_OUTPUT
+
+      - name: Update data.json
+        run: |
+          VK=${{ steps.vk.outputs.members }}
+          if [ "$VK" = "0" ]; then
+            VK=$(python3 -c "import json; d=json.load(open('data.json')); print(d.get('vkCount','431'))")
+          fi
+          python3 -c "
+import json
+d = json.load(open('data.json'))
+d['ts'] = '${{ steps.time.outputs.date }} \u00b7 ${{ steps.time.outputs.hour }} MSK \u00b7 \u0430\u0432\u0442\u043e\u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043a\u0430\u0436\u0434\u044b\u0439 \u0447\u0430\u0441 \u00b7 \u0441\u043b\u0435\u0434: ${{ steps.time.outputs.next }}'
+if int('$VK') > 0:
+    d['vkCount'] = '$VK'
+    d['vkSub'] = '$VK \u043f\u043e\u0434\u043f.'
+json.dump(d, open('data.json','w'), ensure_ascii=False, indent=2)
+"
+
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data.json
+          git diff --cached --quiet || (git commit -m "auto-update ${{ steps.time.outputs.date }} ${{ steps.time.outputs.hour }}" && git push)
